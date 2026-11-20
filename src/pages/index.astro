@@ -48,6 +48,7 @@ const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numer
         {featured.map((p) => (
           <article class="card">
             <div class="meta">{p.labels.join(' · ')} — تحديث {ar(p.updated)}</div>
+            {p.image && <a class="card-image-link" href={url(p)} aria-label={`افتح: ${p.title}`}><img class="card-image" src={p.image} alt={p.imageAlt ?? p.title} width="720" height="405" loading="lazy" decoding="async" /></a>}
             <h3><a href={url(p)}>{p.title}</a></h3>
             <p>{p.excerpt.slice(0, 120)}…</p>
             <div class="meta">{p.words} كلمة</div>
@@ -71,6 +72,7 @@ const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numer
         {latest.map((p) => (
           <article class="card">
             <div class="meta">{p.labels.join(' · ')}</div>
+            {p.image && <a class="card-image-link" href={url(p)} aria-label={`افتح: ${p.title}`}><img class="card-image" src={p.image} alt={p.imageAlt ?? p.title} width="720" height="405" loading="lazy" decoding="async" /></a>}
             <h3><a href={url(p)}>{p.title}</a></h3>
           </article>
         ))}
