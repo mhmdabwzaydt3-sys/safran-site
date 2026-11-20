@@ -30,7 +30,7 @@ const schema = {
   ...(post.image ? { image: [post.image] } : {}),
 };
 ---
-<Base title={post.title} description={post.excerpt} canonical={url(post)} active="visas">
+<Base title={post.seoTitle ?? post.title} description={post.seoDescription ?? post.excerpt} canonical={url(post)} active="visas">
   <div class="wrap section">
     <article class="article">
       <nav class="crumbs" aria-label="مسار التصفح">
@@ -47,6 +47,13 @@ const schema = {
         <span>القراءة: ~{Math.max(1, Math.round(post.words / 200))} دقيقة</span>
         <span>الناشر: سفران</span>
       </div>
+
+      {post.image && (
+        <figure class="article-cover">
+          <img src={post.image} alt={post.imageAlt ?? post.title} width="1200" height="675" fetchpriority="high" decoding="async" />
+          {post.imageCaption && <figcaption>{post.imageCaption}</figcaption>}
+        </figure>
+      )}
 
       <div class="notice">
         معلومات تعليمية قد تتغير (رسوم، مدد، شروط دخول). تحقق من الجهة الرسمية قبل التقديم — المصادر الرسمية مذكورة داخل المقال.
