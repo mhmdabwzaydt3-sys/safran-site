@@ -1,0 +1,125 @@
+---
+import '../styles/global.css';
+import allPostsData from '../data/posts.json';
+const posts = allPostsData.filter((p: any) => p.status !== 'HOLD');
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  noindex?: boolean;
+  active?: string;
+}
+const { title, description = 'سفران: دليل معلوماتي للتأشيرات والسفر، مبني على مصادر رسمية وتواريخ مراجعة واضحة.', canonical, noindex, active } = Astro.props;
+
+const isPreview = import.meta.env.PUBLIC_PREVIEW === '1';
+const siteName = 'سفران';
+const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
+const canonicalUrl = canonical ? new URL(canonical, Astro.site) : new URL(Astro.url.pathname, Astro.site);
+
+const visasCount = posts.filter((p) => p.labels.includes('تأشيرات')).length;
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: siteName,
+  url: 'https://www.safrnblog.com/',
+  description: 'مدونة معلوماتية عن السفر والتأشيرات.',
+};
+
+const nav = [
+  { href: '/', label: 'الرئيسية', key: 'home' },
+  { href: '/label/visas.html', label: 'التأشيرات', key: 'visas' },
+  { href: '/label/guides.html', label: 'أدلة', key: 'guides' },
+  { href: '/search.html', label: 'بحث', key: 'search' },
+  { href: '/about.html', label: 'عن سفران', key: 'about' },
+];
+---
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {isPreview || noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow" />}
+    <meta name="theme-color" content="#0F172A" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="ar_AR" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
+    {isPreview && (
+      <div class="banner-preview" role="status">
+        نسخة معاينة غير إنتاجية — لا تُفهرس، وليست بديلًا عن الموقع الحالي.
+      </div>
+    )}
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true">س</span>
+          <span>سفران</span>
+        </a>
+        <nav class="nav" aria-label="التنقل الرئيسي">
+          {nav.map((item) => (
+            <a href={item.href} aria-current={active === item.key ? 'page' : undefined}>{item.label}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="footer-grid">
+          <div>
+            <h2>سفران</h2>
+            <p style="margin:0 0 8px">مدونة معلوماتية عن السفر والتأشيرات. لا نبيع رحلات ولا نقدم حجوزات — نقدم معلومات قابلة للتحقق مع مصادرها وتاريخ مراجعتها.</p>
+            <p style="margin:0;font-size:13px;color:#94A3B8">{visasCount} مقالًا عن التأشيرات ضمن {posts.length} مقالًا منشورًا.</p>
+          </div>
+          <div>
+            <h2>أقسام</h2>
+            <ul>
+              <li><a href="/label/visas.html">التأشيرات</a></li>
+              <li><a href="/label/guides.html">أدلة شاملة</a></li>
+              <li><a href="/search.html">البحث في الموقع</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>عن الموقع</h2>
+            <ul>
+              <li><a href="/about.html">من نحن</a></li>
+              <li><a href="/contact.html">اتصل بنا</a></li>
+              <li><a href="/editorial-policy.html">السياسة التحريرية</a></li>
+              <li><a href="/corrections.html">سياسة التصحيحات</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>قانوني</h2>
+            <ul>
+              <li><a href="/privacy.html">سياسة الخصوصية</a></li>
+              <li><a href="/terms.html">الشروط والأحكام</a></li>
+              <li><a href="/disclosure.html">الإفصاح عن الإعلانات</a></li>
+              <li><a href="/sitemap.html">خريطة الموقع</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          © 2026 سفران — معلومات قد تتغير؛ تحقق دائمًا من الجهة الرسمية قبل السفر.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "سفران — دليل السفر والتأشيرات",
+  "short_name": "سفران",
+  "description": "معلومات تأشيرات وسفر بمصادر رسمية وتواريخ مراجعة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0F172A",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

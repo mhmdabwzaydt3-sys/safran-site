@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="سفران">
+  <rect width="64" height="64" rx="14" fill="#0D9488"/>
+  <path d="M20 42c6-2 14-9 18-20 2-4 6-3 5 2-1 8-6 16-13 21-3 2-7 1-6-1.5.3-.9 1.5-1.6 3-2z" fill="#fff"/>
+  <circle cx="44" cy="22" r="3" fill="#D4A853"/>
+</svg>

@@ -1,0 +1,5 @@
+{
+  "name": "safran-preview-v2",
+  "main": "src/bootstrap.js",
+  "compatibility_date": "2025-01-01"
+}

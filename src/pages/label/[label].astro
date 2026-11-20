@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import allPostsData from '../../data/posts.json';
+const posts = allPostsData.filter((p: any) => p.status !== 'HOLD');
+
+const LABELS: Record<string, string> = {
+  visas: 'تأشيرات', benin: 'بنين', usa: 'أمريكا', uk: 'بريطانيا', schengen: 'شنغن',
+  hungary: 'المجر', albania: 'ألبانيا', georgia: 'جورجيا', japan: 'اليابان', russia: 'روسيا',
+  china: 'الصين', morocco: 'المغرب', azerbaijan: 'أذربيجان', guides: 'دليل شامل',
+};
+
+export function getStaticPaths() {
+  const set = new Map<string, string>();
+  allPostsData.filter((p) => p.status !== 'HOLD').forEach((p) => p.labelSlugs.forEach((s, i) => set.set(s, p.labels[i])));
+  return [...set.entries()].map(([slug, label]) => ({
+    params: { label: slug },
+    props: { label, slug },
+  }));
+}
+
+const { label, slug } = Astro.props;
+const items = posts.filter((p) => p.labels.includes(label));
+const url = (p: (typeof posts)[number]) => `/${p.year}/${p.month}/${p.slug}.html`;
+const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base title={`${label} — ${items.length} مقالًا`} description={`كل المقالات المصنفة تحت ${label} في سفران.`} canonical={`/label/${slug}.html`} active={slug}>
+  <div class="wrap">
+    <section class="hero">
+      <h1>{label}</h1>
+      <p>{items.length} مقالًا في هذا القسم. كل مقال يحمل تاريخ آخر مراجعة ومصادره.</p>
+    </section>
+    <section class="section">
+      <div class="grid">
+        {items.map((p) => (
+          <article class="card">
+            <div class="meta">{p.labels.join(' · ')} — {ar(p.updated)}</div>
+            <h3><a href={url(p)}>{p.title}</a></h3>
+            <p>{p.excerpt.slice(0, 110)}…</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>

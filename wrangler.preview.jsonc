@@ -1,0 +1,11 @@
+{
+  "name": "safran-preview-v2",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "not_found_handling": "404-page"
+  }
+}

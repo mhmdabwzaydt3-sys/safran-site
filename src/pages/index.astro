@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import allPostsData from '../data/posts.json';
+const posts = allPostsData.filter((p: any) => p.status !== 'HOLD');
+
+const sorted = [...posts].sort((a, b) => (a.updated < b.updated ? 1 : -1));
+const featured = sorted.slice(0, 6);
+const latest = sorted.slice(6, 15);
+
+const labels = [
+  { slug: 'visas', name: 'التأشيرات', count: posts.filter((p) => p.labels.includes('تأشيرات')).length },
+  { slug: 'benin', name: 'بنين', count: posts.filter((p) => p.labels.includes('بنين')).length },
+  { slug: 'schengen', name: 'شنغن', count: posts.filter((p) => p.labels.includes('شنغن')).length },
+  { slug: 'usa', name: 'أمريكا', count: posts.filter((p) => p.labels.includes('أمريكا')).length },
+  { slug: 'uk', name: 'بريطانيا', count: posts.filter((p) => p.labels.includes('بريطانيا')).length },
+  { slug: 'japan', name: 'اليابان', count: posts.filter((p) => p.labels.includes('اليابان')).length },
+  { slug: 'china', name: 'الصين', count: posts.filter((p) => p.labels.includes('الصين')).length },
+  { slug: 'russia', name: 'روسيا', count: posts.filter((p) => p.labels.includes('روسيا')).length },
+  { slug: 'georgia', name: 'جورجيا', count: posts.filter((p) => p.labels.includes('جورجيا')).length },
+  { slug: 'albania', name: 'ألبانيا', count: posts.filter((p) => p.labels.includes('ألبانيا')).length },
+  { slug: 'azerbaijan', name: 'أذربيجان', count: posts.filter((p) => p.labels.includes('أذربيجان')).length },
+  { slug: 'morocco', name: 'المغرب', count: posts.filter((p) => p.labels.includes('المغرب')).length },
+  { slug: 'hungary', name: 'المجر', count: posts.filter((p) => p.labels.includes('المجر')).length },
+  { slug: 'guides', name: 'أدلة شاملة', count: posts.filter((p) => p.labels.includes('دليل شامل')).length },
+];
+
+const url = (p: (typeof posts)[number]) => `/${p.year}/${p.month}/${p.slug}.html`;
+const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base title="سفران" description="سفران: مدونة معلوماتية عن التأشيرات والسفر للسعوديين والخليجيين، بمصادر رسمية وتواريخ مراجعة واضحة." active="home">
+  <div class="wrap">
+    <section class="hero">
+      <h1>معلومات تأشيرات واضحة، بمصادر وتاريخ مراجعة</h1>
+      <p>دلائل مكتوبة للإجابة عن سؤال محدد: هل تحتاج فيزا؟ كم الرسوم؟ ما المدة؟ وما الذي قد يتغير قبل سفرك.</p>
+      <form class="search-hero" action="/search.html" method="get" role="search">
+        <label for="q" style="position:absolute;inset-inline-start:-9999px">ابحث في المقالات</label>
+        <input id="q" name="q" type="search" placeholder="ابحث عن دولة أو تأشيرة أو رسوم…" autocomplete="off" />
+        <button class="btn" type="submit">بحث</button>
+      </form>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>أحدث المقالات</h2>
+        <a href="/label/visas.html">كل التأشيرات ←</a>
+      </div>
+      <div class="grid">
+        {featured.map((p) => (
+          <article class="card">
+            <div class="meta">{p.labels.join(' · ')} — تحديث {ar(p.updated)}</div>
+            <h3><a href={url(p)}>{p.title}</a></h3>
+            <p>{p.excerpt.slice(0, 120)}…</p>
+            <div class="meta">{p.words} كلمة</div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>تصفح حسب الدولة</h2></div>
+      <div class="chips">
+        {labels.map((l) => (
+          <a class="chip" href={`/label/${l.slug}.html`}>{l.name} <span style="color:var(--muted)">({l.count})</span></a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>المزيد من الدلائل</h2></div>
+      <div class="grid">
+        {latest.map((p) => (
+          <article class="card">
+            <div class="meta">{p.labels.join(' · ')}</div>
+            <h3><a href={url(p)}>{p.title}</a></h3>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="notice">
+        المعلومات في هذا الموقع تعليمية وقد تتغير. القرار النهائي والرسوم والمواعيد تعتمد على الجهة الرسمية المختصة — تحقق منها قبل التقديم أو السفر.
+      </div>
+    </section>
+  </div>
+</Base>

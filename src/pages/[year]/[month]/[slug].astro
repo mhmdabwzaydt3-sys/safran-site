@@ -1,0 +1,80 @@
+---
+import Base from '../../../layouts/Base.astro';
+import allPostsData from '../../../data/posts.json';
+const posts = allPostsData.filter((p: any) => p.status !== 'HOLD');
+
+export function getStaticPaths() {
+  return allPostsData
+    .filter((p) => p.status !== 'HOLD')
+    .map((p) => ({ params: { year: p.year, month: p.month, slug: p.slug }, props: { post: p } }));
+}
+
+const { post } = Astro.props;
+const related = posts
+  .filter((p) => p.n !== post.n && p.labels.some((l) => post.labels.includes(l)))
+  .slice(0, 3);
+const url = (p: (typeof posts)[number]) => `/${p.year}/${p.month}/${p.slug}.html`;
+const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+const isEmpty = !post.html.trim();
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  inLanguage: 'ar',
+  datePublished: post.published,
+  dateModified: post.updated,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.safrnblog.com${url(post)}` },
+  author: { '@type': 'Organization', name: 'سفران' },
+  publisher: { '@type': 'Organization', name: 'سفران', url: 'https://www.safrnblog.com/' },
+  ...(post.image ? { image: [post.image] } : {}),
+};
+---
+<Base title={post.title} description={post.excerpt} canonical={url(post)} active="visas">
+  <div class="wrap section">
+    <article class="article">
+      <nav class="crumbs" aria-label="مسار التصفح">
+        <a href="/">الرئيسية</a> / {post.labels.map((l, i) => (
+          <span>{i > 0 && ' · '}{l}</span>
+        ))}
+      </nav>
+
+      <h1>{post.title}</h1>
+
+      <div class="post-meta">
+        <span>نُشر: <time datetime={post.published}>{ar(post.published)}</time></span>
+        <span>آخر مراجعة: <time datetime={post.updated}>{ar(post.updated)}</time></span>
+        <span>القراءة: ~{Math.max(1, Math.round(post.words / 200))} دقيقة</span>
+        <span>الناشر: سفران</span>
+      </div>
+
+      <div class="notice">
+        معلومات تعليمية قد تتغير (رسوم، مدد، شروط دخول). تحقق من الجهة الرسمية قبل التقديم — المصادر الرسمية مذكورة داخل المقال.
+      </div>
+
+      {isEmpty ? (
+        <div class="empty">
+          <p><strong>هذا المقال غير مكتمل المحتوى في المصدر الأصلي.</strong></p>
+          <p>نُقل كما هو من النسخة السابقة، وهو مُدرج في قائمة المراجعة لإعادة الكتابة أو الدمج قبل النشر النهائي.</p>
+        </div>
+      ) : (
+        <div class="prose" set:html={post.html} />
+      )}
+
+      {related.length > 0 && (
+        <section class="related">
+          <h2>مقالات ذات صلة</h2>
+          <div class="grid">
+            {related.map((r) => (
+              <article class="card">
+                <div class="meta">{r.labels.join(' · ')}</div>
+                <h3><a href={url(r)}>{r.title}</a></h3>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  </div>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+</Base>

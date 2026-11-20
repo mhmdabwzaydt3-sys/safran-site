@@ -1,0 +1,137 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="البحث" description="ابحث في مقالات سفران عن دولة أو تأشيرة أو رسوم." noindex active="search">
+  <div class="wrap">
+    <section class="hero">
+      <h1>البحث في سفران</h1>
+      <p>اكتب كلمة مثل «بنين» أو «شنغن» أو «رسوم»، أو استخدم البحث الصوتي إن كان متصفحك يدعمه.</p>
+      <form class="search-hero" id="search-form" role="search">
+        <label for="q" style="position:absolute;inset-inline-start:-9999px">كلمة البحث</label>
+        <input id="q" name="q" type="search" placeholder="ابحث…" autocomplete="off" />
+        <button class="btn" type="submit">بحث</button>
+        <button class="btn-ghost" type="button" id="voice" hidden aria-label="البحث بالصوت">🎙 صوت</button>
+      </form>
+      <p id="voice-status" style="font-size:14px;color:var(--muted);margin-top:10px" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="section">
+      <p id="summary" style="color:var(--muted);font-size:15px"></p>
+      <div id="results" class="grid"></div>
+      <div id="empty" class="empty" hidden>
+        <p>لا نتائج مطابقة. جرّب كلمة أقصر أو اسم الدولة بالعربية.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const norm = (s) => (s || '')
+      .replace(/[\u064B-\u0652\u0670]/g, '')
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[ؤئ]/g, 'ء')
+      .toLowerCase()
+      .trim();
+
+    const input = document.getElementById('q');
+    const form = document.getElementById('search-form');
+    const results = document.getElementById('results');
+    const empty = document.getElementById('empty');
+    const summary = document.getElementById('summary');
+    let index = [];
+
+    const load = async () => {
+      if (index.length) return index;
+      const res = await fetch('/search-index.json');
+      index = await res.json();
+      return index;
+    };
+
+    const render = (items, q) => {
+      results.innerHTML = '';
+      empty.hidden = items.length > 0;
+      summary.textContent = q
+        ? `${items.length} نتيجة عن «${q}»`
+        : 'اكتب كلمة للبحث، أو ابدأ من أحدث المقالات أدناه.';
+      const frag = document.createDocumentFragment();
+      items.slice(0, 30).forEach((it) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = (it.l || []).join(' · ');
+        const h = document.createElement('h3');
+        const a = document.createElement('a');
+        a.href = it.u;
+        a.textContent = it.t;
+        h.appendChild(a);
+        const p = document.createElement('p');
+        p.textContent = (it.e || '').slice(0, 130) + '…';
+        card.append(meta, h, p);
+        frag.appendChild(card);
+      });
+      results.appendChild(frag);
+    };
+
+    const search = async (q) => {
+      const all = await load();
+      const nq = norm(q);
+      if (!nq) return render(all.slice(0, 12), '');
+      const terms = nq.split(/\s+/).filter(Boolean);
+      const scored = all
+        .map((it) => {
+          const t = norm(it.t);
+          const e = norm(it.e);
+          const l = norm((it.l || []).join(' '));
+          let score = 0;
+          terms.forEach((term) => {
+            if (t.includes(term)) score += 5;
+            if (l.includes(term)) score += 3;
+            if (e.includes(term)) score += 1;
+          });
+          return { it, score };
+        })
+        .filter((x) => x.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map((x) => x.it);
+      render(scored, q);
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = input.value;
+      const u = new URL(location.href);
+      u.searchParams.set('q', q);
+      history.replaceState(null, '', u);
+      search(q);
+    });
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('q')) input.value = params.get('q');
+    search(input.value);
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const voiceBtn = document.getElementById('voice');
+    const voiceStatus = document.getElementById('voice-status');
+    if (SR) {
+      voiceBtn.hidden = false;
+      voiceBtn.addEventListener('click', () => {
+        const rec = new SR();
+        rec.lang = 'ar-SA';
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+        voiceStatus.textContent = 'جارٍ الاستماع… تحدث الآن.';
+        rec.onresult = (ev) => {
+          const text = ev.results[0][0].transcript;
+          input.value = text;
+          voiceStatus.textContent = `تم التعرف على: «${text}»`;
+          search(text);
+        };
+        rec.onerror = () => { voiceStatus.textContent = 'تعذر التعرف الصوتي. استخدم البحث النصي.'; };
+        rec.onend = () => { if (voiceStatus.textContent === 'جارٍ الاستماع… تحدث الآن.') voiceStatus.textContent = ''; };
+        rec.start();
+      });
+    }
+  </script>
+</Base>

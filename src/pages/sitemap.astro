@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import allPostsData from '../data/posts.json';
+const posts = allPostsData.filter((p: any) => p.status !== 'HOLD');
+
+const sorted = [...posts].sort((a, b) => (a.updated < b.updated ? 1 : -1));
+const url = (p: (typeof posts)[number]) => `/${p.year}/${p.month}/${p.slug}.html`;
+const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+const pages = [
+  ['/', 'الصفحة الرئيسية'],
+  ['/about.html', 'من نحن'],
+  ['/contact.html', 'اتصل بنا'],
+  ['/privacy.html', 'سياسة الخصوصية'],
+  ['/terms.html', 'الشروط والأحكام'],
+  ['/editorial-policy.html', 'السياسة التحريرية'],
+  ['/corrections.html', 'سياسة التصحيحات'],
+  ['/disclosure.html', 'الإفصاح عن الإعلانات'],
+  ['/search.html', 'البحث'],
+];
+---
+<Base title="خريطة الموقع" description="كل صفحات ومقالات سفران في مكان واحد." canonical="/sitemap.html">
+  <div class="wrap section">
+    <article class="article">
+      <nav class="crumbs"><a href="/">الرئيسية</a> / خريطة الموقع</nav>
+      <h1>خريطة الموقع</h1>
+
+      <div class="prose">
+        <h2>الصفحات</h2>
+        <ul>
+          {pages.map(([href, label]) => <li><a href={href}>{label}</a></li>)}
+        </ul>
+
+        <h2>المقالات ({sorted.length})</h2>
+        <ul>
+          {sorted.map((p) => (
+            <li><a href={url(p)}>{p.title}</a> <span style="color:var(--muted);font-size:14px">— {ar(p.updated)}</span></li>
+          ))}
+        </ul>
+
+        <p style="color:var(--muted);font-size:15px">خريطة XML لمحركات البحث: <a href="/sitemap.xml">/sitemap.xml</a></p>
+      </div>
+    </article>
+  </div>
+</Base>
