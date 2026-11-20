@@ -21,6 +21,7 @@ src/
 public/
   ads.txt (8 معرّفات)  robots.txt (معاينة: Disallow)  manifest.webmanifest  favicon.svg  search-index.json
 docs/                      الوثيقة المرجعية v2.1 وتقارير التدقيق والبناء
+  ARTICLE-INDEX.csv        خريطة كل مقال: المعرّف، المسار، الملف، الحالة، عدد الكلمات، رابط المعاينة
 audit/                     سكربتات الاستخراج والتدقيق + جرد المحتوى (CSV)
 data/raw-feed.json         نسخة Blogger الخام (أصل غير معدّل)
 ```
