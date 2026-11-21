@@ -41,7 +41,19 @@ jobs:
           PUBLIC_PREVIEW=1 npm run build
           grep -q '^Disallow: /$' dist/robots.txt
           test -f dist/_redirects
-          test "$(grep -c ' 301$' dist/_redirects)" -ge 10
+          test "$(grep -c ' 301
+      - name: Build production (must be indexable)
+        run: |
+          npm run build
+          grep -q '^Allow: /$' dist/robots.txt
+          grep -q '^Sitemap: https://www.safrnblog.com/sitemap.xml$' dist/robots.txt
+          test -f dist/sitemap.xml
+          test -f dist/2026/08/2026.html
+          test ! -f dist/2026/09/blog-post_11.html
+          test ! -f dist/2026/09/2026_0364464677.html
+          test ! -f dist/2026/09/blog-post.html
+          test ! -f dist/2026/09/2026.html
+ dist/_redirects)" -ge 11
       - name: Build production (must be indexable)
         run: |
           npm run build
