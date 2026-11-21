@@ -1,0 +1,13 @@
+# Consolidated Benin articles -> canonical pillar
+/2026/09/blog-post_11.html /2026/08/2026.html 301
+/2026/09/2026_0364464677.html /2026/08/2026.html 301
+/2026/09/blog-post.html /2026/08/2026.html 301
+/2026/09/2026.html /2026/08/2026.html 301
+/2026/09/blog-post_07.html /2026/08/2026.html 301
+
+# Legacy Blogger pages -> maintained Astro pages
+/p/about.html /about.html 301
+/p/contact-us.html /contact.html 301
+/p/blog-page.html /privacy.html 301
+/p/privacy-policy-for-arabic-web-de-if-you.html /privacy.html 301
+/p/blog-page_25.html /search.html 301
