@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import posts from '../data/posts.json';
+import allPostsData from '../data/posts.json';
+const posts = allPostsData.filter((p: any) => p.status === 'PUBLISHED');
 
 const ar = (d: string) => new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
 ---

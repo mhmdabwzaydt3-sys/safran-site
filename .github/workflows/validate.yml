@@ -1,0 +1,55 @@
+name: Validate Safran
+
+on:
+  push:
+    branches: [main, content-seo-upgrade-2026-11]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate editorial data
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const posts = JSON.parse(fs.readFileSync('src/data/posts.json', 'utf8'));
+          const index = JSON.parse(fs.readFileSync('public/search-index.json', 'utf8'));
+          const published = posts.filter((p) => p.status === 'PUBLISHED');
+          const held = posts.filter((p) => p.status === 'HOLD');
+          if (published.length !== 14 || held.length !== 1) throw new Error('Unexpected publication inventory');
+          if ([2, 3, 5, 6].some((n) => posts.some((p) => p.n === n))) throw new Error('Merged Benin posts remain in posts.json');
+          if (index.length !== published.length) throw new Error('Search index and published inventory differ');
+          if (index.some((item) => !item.u || !item.t || !item.e)) throw new Error('Incomplete search index record');
+          console.log({ published: published.length, held: held.length, searchIndex: index.length });
+          NODE
+      - name: Build preview (must be noindex)
+        run: |
+          PUBLIC_PREVIEW=1 npm run build
+          grep -q '^Disallow: /$' dist/robots.txt
+          test -f dist/_redirects
+          test "$(grep -c ' 301$' dist/_redirects)" -ge 11
+      - name: Build production (must be indexable)
+        run: |
+          npm run build
+          grep -q '^Allow: /$' dist/robots.txt
+          grep -q '^Sitemap: https://www.safrnblog.com/sitemap.xml$' dist/robots.txt
+          test -f dist/sitemap.xml
+          test -f dist/2026/08/2026.html
+          test ! -f dist/2026/09/blog-post_11.html
+          test ! -f dist/2026/09/2026_0364464677.html
+          test ! -f dist/2026/09/blog-post.html
+          test ! -f dist/2026/09/2026.html

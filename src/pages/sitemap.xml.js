@@ -10,8 +10,8 @@ const labels = ['visas', 'benin', 'usa', 'uk', 'schengen', 'hungary', 'albania',
 export function GET() {
   const base = 'https://www.safrnblog.com';
   const urls = [
-    ...staticPages.map((u) => ({ loc: base + u, lastmod: '2026-11-20' })),
-    ...labels.map((l) => ({ loc: `${base}/label/${l}.html`, lastmod: '2026-11-20' })),
+    ...staticPages.map((u) => ({ loc: base + u, lastmod: '2026-11-21' })),
+    ...labels.map((l) => ({ loc: `${base}/label/${l}.html`, lastmod: '2026-11-21' })),
     ...posts.map((p) => ({
       loc: `${base}/${p.year}/${p.month}/${p.slug}.html`,
       lastmod: p.updated,
